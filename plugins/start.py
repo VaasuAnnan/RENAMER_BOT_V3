@@ -99,6 +99,7 @@ async def send_doc(client,message):
        	used_date = user_deta["date"]
        	buy_date= user_deta["prexdate"]
        	daily = user_deta["daily"]
+       	user_type = user_deta["usertype"]
        except:
            await message.reply_text("database has been Cleared click on /start")
            return
@@ -106,8 +107,8 @@ async def send_doc(client,message):
            
        c_time = time.time()
        
-       if buy_date==None:
-           LIMIT = 350
+       if user_type=="Free":
+           LIMIT = 600
        else:
            LIMIT = 50
        then = used_date+ LIMIT
@@ -118,8 +119,7 @@ async def send_doc(client,message):
        	await message.reply_text(f"```Sorry Dude I am not only for YOU \n Flood control is active so please wait for {ltime}```",reply_to_message_id = message.id)
        else:
        		# Forward a single message
-       		await client.forward_messages(log_channel, message.from_user.id, message.id)
-       		await client.send_message(log_channel,f"User Id :- {user_id}")       		
+           		
        		media = await client.get_messages(message.chat.id,message.id)
        		file = media.document or media.video or media.audio 
        		dcid = FileId.decode(file.file_id).dc_id
@@ -150,12 +150,21 @@ async def send_doc(client,message):
        		            total_rename(int(botid),prrename)
        		            total_size(int(botid),prsize,file.file_size)
        		        else:
+       		            uploadlimit(message.from_user.id,2147483648)
+       		            usertype(message.from_user.id,"Free")
+	
        		            await message.reply_text(f'Your Plane Expired On {buy_date}',quote=True)
        		            return
        		    else:
        		          	await message.reply_text("Can't upload files bigger than 2GB ")
        		          	return
        		else:
+       		    if buy_date:
+       		        pre_check = check_expi(buy_date)
+       		        if pre_check == False:
+       		            uploadlimit(message.from_user.id,2147483648)
+       		            usertype(message.from_user.id,"Free")
+       		        
        		    filesize = humanize.naturalsize(file.file_size)
        		    fileid = file.file_id
        		    total_rename(int(botid),prrename)
